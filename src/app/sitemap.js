@@ -8,10 +8,10 @@ export default async function sitemap() {
 
   try {
     await dbConnect();
-    const services = await Service.find({ isActive: true }).select("slug updatedAt").lean();
+    const services = await Service.find({ isActive: true }).select("_id slug updatedAt").lean();
 
     serviceUrls = services.map((service) => ({
-      url: `${baseUrl}/services/${service.slug}`,
+      url: `${baseUrl}/services/${service._id || service.slug}`,
       lastModified: service.updatedAt ? new Date(service.updatedAt).toISOString() : new Date().toISOString(),
       changeFrequency: "weekly",
       priority: 0.8,

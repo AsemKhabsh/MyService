@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import ServiceCard from "@/components/ServiceCard";
 import { Clock, RefreshCw, CheckCircle2, ShoppingCart, ArrowLeft, Star, AlertCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-export default function ServiceDetailPage({ params }) {
-  const { slug } = use(params);
+export default function ServiceDetailPage() {
+  const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
+
+  const id = params?.id || params?.slug;
 
   const [service, setService] = useState(null);
   const [relatedServices, setRelatedServices] = useState([]);
@@ -21,14 +23,11 @@ export default function ServiceDetailPage({ params }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchServiceDetail();
-  }, [slug]);
-
-  const fetchServiceDetail = async () => {
+  const fetchServiceDetail = useCallback(async () => {
+    if (!id) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/services/${slug}`);
+      const res = await fetch(`/api/services/${id}`);
       const data = await res.json();
 
       if (data.success && data.data?.service) {
@@ -40,23 +39,30 @@ export default function ServiceDetailPage({ params }) {
         if (s.category) {
           const relRes = await fetch(`/api/services?category=${encodeURIComponent(s.category)}&limit=4`);
           const relData = await relRes.json();
-          if (relData.success) {
+          if (relData.success && relData.data?.services) {
             setRelatedServices(relData.data.services.filter((item) => item._id !== s._id));
           }
         }
+      } else {
+        setService(null);
       }
     } catch (error) {
       console.error("Failed to load service detail:", error);
+      setService(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchServiceDetail();
+  }, [fetchServiceDetail]);
 
   const handleCreateRequest = async (e) => {
     e.preventDefault();
     if (!user) {
       toast.error("Please log in to order this service");
-      router.push(`/login?callbackUrl=/services/${slug}`);
+      router.push(`/login?callbackUrl=/services/${id}`);
       return;
     }
 

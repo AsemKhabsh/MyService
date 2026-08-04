@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { Clock, RefreshCw, Star, Tag } from "lucide-react";
+import { Clock, RefreshCw, Star } from "lucide-react";
 
 export default function ServiceCard({ service }) {
+  const serviceId = service._id || service.slug;
+
   return (
-    <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col group">
+    <div className="card bg-base-100 border border-base-200 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col group">
       {/* Image Container */}
       <figure className="relative h-48 w-full overflow-hidden bg-base-200">
         <img
@@ -12,11 +14,11 @@ export default function ServiceCard({ service }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         {service.isFeatured && (
-          <div className="absolute top-3 left-3 bg-secondary text-secondary-content text-xs font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+          <div className="absolute top-3 left-3 bg-secondary text-secondary-content text-xs font-bold px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1">
             <Star className="w-3 h-3 fill-current" /> Featured
           </div>
         )}
-        <div className="absolute bottom-3 right-3 bg-base-100/90 backdrop-blur-sm text-base-content text-xs font-semibold px-2.5 py-1 rounded-lg shadow">
+        <div className="absolute bottom-3 right-3 bg-base-100/90 backdrop-blur-xs text-base-content text-xs font-semibold px-2.5 py-1 rounded-lg shadow-xs">
           {service.category}
         </div>
       </figure>
@@ -25,7 +27,7 @@ export default function ServiceCard({ service }) {
       <div className="card-body p-5 flex flex-col justify-between flex-1">
         <div>
           <h3 className="card-title text-base font-bold text-base-content line-clamp-1 group-hover:text-primary transition-colors">
-            <Link href={`/services/${service.slug}`}>
+            <Link href={`/services/${serviceId}`}>
               {service.title}
             </Link>
           </h3>
